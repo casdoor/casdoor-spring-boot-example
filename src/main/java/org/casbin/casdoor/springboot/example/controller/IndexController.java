@@ -11,19 +11,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package org.casbin.casdoor.springboot.example;
+package org.casbin.casdoor.springboot.example.controller;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author Yixiang Zhao (@seriouszyx)
  */
-@SpringBootApplication
-public class CasdoorSpringBootExampleApplication {
+@Controller
+public class IndexController {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CasdoorSpringBootExampleApplication.class, args);
+    @RequestMapping("/")
+    @ResponseBody
+    public String index() {
+        return "You can see this message after login.";
     }
-
 }

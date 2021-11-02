@@ -11,19 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package org.casbin.casdoor.springboot.example;
+package org.casbin.casdoor.springboot.example.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Yixiang Zhao (@seriouszyx)
  */
-@SpringBootApplication
-public class CasdoorSpringBootExampleApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(CasdoorSpringBootExampleApplication.class, args);
-    }
-
+@Data
+@Component
+@ConfigurationProperties(prefix = "casdoor")
+public class CasdoorSdkProperties {
+    private String endpoint;
+    private String clientId;
+    private String clientSecret;
+    private String jwtSecret;
+    private String organizationName;
+    private String applicationName;
 }
