@@ -150,3 +150,10 @@ public String login(String code, String state, HttpServletRequest request) {
 }
 ```
 
+## Step6. UserService
+
+`CasdoorUserService` support basic user operations, like:
+
+- `GetUser(name string)`, get one user by user name.
+- `GetUsers()`, get all users.
+- `UpdateUser(auth.User)/AddUser(auth.User)/DeleteUser(auth.User)`, write user to database.
