@@ -15,16 +15,15 @@ package org.casbin.casdoor.springboot.example.controller;
 
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
-import org.casbin.casdoor.config.CasdoorConfig;
 import org.casbin.casdoor.entity.CasdoorUser;
 import org.casbin.casdoor.service.CasdoorAuthService;
-import org.casbin.casdoor.springboot.example.config.CasdoorSdkConfig;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 
@@ -35,26 +34,21 @@ import java.text.ParseException;
 public class AccountController {
 
     @Resource
-    private CasdoorSdkConfig casdoorSdkConfig;
+    private CasdoorAuthService casdoorAuthService;
 
     @RequestMapping("toLogin")
-    public String toLogin() {
-        CasdoorConfig casdoorConfig = casdoorSdkConfig.getCasdoorConfig();
-        String targetUrl = String.format("%s/login/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=read&state=%s",
-                "http://localhost:7001", casdoorConfig.getClientId(),
-                "http://localhost:8080/login", casdoorConfig.getApplicationName());
-        return "redirect:" + targetUrl;
+    public String toLogin() throws UnsupportedEncodingException {
+        return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/login");
     }
 
     @RequestMapping("login")
     public String login(String code, String state, HttpServletRequest request) {
-        CasdoorAuthService casdoorAuthService = new CasdoorAuthService(casdoorSdkConfig.getCasdoorConfig());
         String token = "";
         CasdoorUser user = null;
         try {
             token = casdoorAuthService.getOAuthToken(code, state);
             user = casdoorAuthService.parseJwtToken(token);
-        } catch (OAuthSystemException | OAuthProblemException | ParseException | InvocationTargetException | IllegalAccessException e) {
+        } catch (ParseException | InvocationTargetException | IllegalAccessException | OAuthSystemException | OAuthProblemException e) {
             e.printStackTrace();
         }
         HttpSession session = request.getSession();
