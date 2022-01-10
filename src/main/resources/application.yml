@@ -1,0 +1,7 @@
+casdoor:
+  endpoint: http://localhost:8000
+  client-id: 874e3e05e58d50148c65
+  client-secret: 41510b84c7267ad2e4d2b51096b7f11dc9c5fdc8
+  jwt-secret: CasdoorSecret
+  organization-name: built-in
+  application-name: app-built-in
