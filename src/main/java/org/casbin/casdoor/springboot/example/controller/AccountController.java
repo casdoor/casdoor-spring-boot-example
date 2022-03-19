@@ -13,9 +13,8 @@
 // limitations under the License.
 package org.casbin.casdoor.springboot.example.controller;
 
-import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
-import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.casbin.casdoor.entity.CasdoorUser;
+import org.casbin.casdoor.exception.CasdoorAuthException;
 import org.casbin.casdoor.service.CasdoorAuthService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 
 /**
  * @author Yixiang Zhao (@seriouszyx)
@@ -37,7 +33,7 @@ public class AccountController {
     private CasdoorAuthService casdoorAuthService;
 
     @RequestMapping("toLogin")
-    public String toLogin() throws UnsupportedEncodingException {
+    public String toLogin() {
         return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/login");
     }
 
@@ -48,7 +44,7 @@ public class AccountController {
         try {
             token = casdoorAuthService.getOAuthToken(code, state);
             user = casdoorAuthService.parseJwtToken(token);
-        } catch (ParseException | InvocationTargetException | IllegalAccessException | OAuthSystemException | OAuthProblemException e) {
+        } catch (CasdoorAuthException e) {
             e.printStackTrace();
         }
         HttpSession session = request.getSession();
