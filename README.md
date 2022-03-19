@@ -1,113 +1,91 @@
 # casdoor-spring-boot-example
 
-This is an example on how to use `casdoor-java-sdk` in SpringBoot project. We will show you the steps below.
+This is an example on how to use `casdoor-spring-boot-starter` in SpringBoot project. We will show you the steps below.
 
-## Step1. Deploy Casdoor 
+## What you need
 
-Firstly, the Casdoor should be deployed. 
+The Casdoor should be deployed.
 
-You can refer to the Casdoor official documentation for the [install guide](https://casdoor.org/docs/basic/installation).
+You can refer to the Casdoor official documentation for the [install guide](https://casdoor.org/docs/basic/server-installation). Please deploy your Casdoor instance in **production mode**.
 
 After a successful deployment, you need to ensure:
 
-- The Casdoor server is successfully running on http://localhost:8000.
-- Open your favorite browser and visit http://localhost:7001, you will see the login page of Casdoor.
+- Open your favorite browser and visit **http://localhost:8000**, you will see the login page of Casdoor.
 - Input `admin` and `123` to test login functionality is working fine.
 
-Then you can quickly implement a casdoor based login page in your own app with the following steps.
+## Quickstart
 
-## Step2. Import casdoor-java-sdk
+### Include the dependency
 
-You can import the casdoor-java-sdk with  maven or gradle.
+Add ```casdoor-spring-boot-starter``` to the Spring Boot project.
 
-```xml
+For Apache Maven:
+
+```Maven
+<!-- https://mvnrepository.com/artifact/org.casbin/casdoor-spring-boot-starter -->
 <dependency>
     <groupId>org.casbin</groupId>
-    <artifactId>casdoor-java-sdk</artifactId>
+    <artifactId>casdoor-spring-boot-starter</artifactId>
     <version>1.x.y</version>
 </dependency>
 ```
 
-## Step3. Init Config
+For Gradle:
+
+```gradle
+// https://mvnrepository.com/artifact/org.casbin/casdoor-spring-boot-starter
+implementation group: 'org.casbin', name: 'casdoor-spring-boot-starter', version: '1.x.y'
+```
+
+### Configure your properties
 
 Initialization requires 6 parameters, which are all string type.
 
 | Name (in order)  | Must | Description                                         |
-| ---------------- | ---- | --------------------------------------------------- |
+|------------------|------|-----------------------------------------------------|
 | endpoint         | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
 | clientId         | Yes  | Application.client_id                               |
 | clientSecret     | Yes  | Application.client_secret                           |
-| jwtSecret        | Yes  | Same as Casdoor JWT secret.                         |
+| jwtPublicKey     | Yes  | The public key for the Casdoor application's cert   |
 | organizationName | Yes  | Application.organization                            |
-| applicationName  | Yes  | Application.name
+| applicationName  | No   | Application.name                                    |
 
-You can use Java properties files to init as below.
+You can use Java properties or YAML files to init as below.
+
+For properties:
 
 ```properties
 casdoor.endpoint = http://localhost:8000
-casdoor.clientId = 874e3e05e58d50148c65
-casdoor.clientSecret = 41510b84c7267ad2e4d2b51096b7f11dc9c5fdc8
-casdoor.jwtSecret = CasdoorSecret
+casdoor.clientId = <client-id>
+casdoor.clientSecret = <client-secret>
+casdoor.jwtPublicKey = <jwt-public-key>
 casdoor.organizationName = built-in
 casdoor.applicationName = app-built-in
 ```
 
-Or YAML files as below.
+For yaml:
 
 ```yaml
 casdoor:
   endpoint: http://localhost:8000
-  client-id: 874e3e05e58d50148c65
-  client-secret: 41510b84c7267ad2e4d2b51096b7f11dc9c5fdc8
-  jwt-secret: CasdoorSecret
+  client-id: <client-id>
+  client-secret: <client-secret>
+  jwt-public-key: <jwt-public-key>
   organization-name: built-in
   application-name: app-built-in
 ```
 
-Then create `CasdoorSdkProperties` class, declare member variables corresponding to the configuration and provide getter and setter.
+### Get the Service and use
+
+
+Now provide 5 services: `CasdoorAuthService`, `CasdoorUserService`, `CasdoorEmailService`, `CasdoorSmsService` and `CasdoorResourceService`.
+
+You can create them as below in SpringBoot project.
 
 ```java
-@Data
-@Component
-@ConfigurationProperties(prefix = "casdoor")
-public class CasdoorSdkProperties {
-    private String endpoint;
-    private String clientId;
-    private String clientSecret;
-    private String jwtSecret;
-    private String organizationName;
-    private String applicationName;
-}
+@Resource
+private CasdoorAuthService casdoorAuthService;
 ```
-
-Create `CasdoorSdkConfig` class, init `CasdoorConfig` with the instance of CasdoorSdkProperties.
-
-```java
-@Configuration
-public class CasdoorSdkConfig {
-
-    @Resource
-    private CasdoorSdkProperties casdoorSdkProperties;
-
-    @Bean
-    public CasdoorConfig getCasdoorConfig() {
-        return new CasdoorConfig(
-                casdoorSdkProperties.getEndpoint(),
-                casdoorSdkProperties.getClientId(),
-                casdoorSdkProperties.getClientSecret(),
-                casdoorSdkProperties.getJwtSecret(),
-                casdoorSdkProperties.getOrganizationName(),
-                casdoorSdkProperties.getApplicationName()
-        );
-    }
-}
-```
-
-When SpringBoot Application starts, the configuration in Java properties or YAML is automatically injected into the member variables in `CasdoorSdkProperties` class. 
-
-So you can use `getCasdoorConfig` method in `CasdoorSdkConfig` class to get `CasdoorConfig` instance anywhere.
-
-## Step4. Redirect to the login page
 
 When you need the authentication who access your app, you can send the target url and redirect to the login page provided by Casdoor.
 
@@ -116,15 +94,9 @@ Please be sure that you have added the callback url (e.g. http://localhost:8080/
 ```java
 @RequestMapping("toLogin")
 public String toLogin() {
-    CasdoorConfig casdoorConfig = casdoorSdkConfig.getCasdoorConfig();
-    String targetUrl = String.format("%s/login/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=read&state=%s",
-            "http://localhost:7001", casdoorConfig.getClientId(),
-            "http://localhost:8080/login", casdoorConfig.getApplicationName());
-    return "redirect:" + targetUrl;
+    return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/login");
 }
 ```
-
-## Step5. Get token and parse
 
 After Casdoor verification passed, it will be redirected to your application with code and state.
 
@@ -135,13 +107,12 @@ You can get the code and call `getOAuthToken` method, then parse out jwt token.
 ```java
 @RequestMapping("login")
 public String login(String code, String state, HttpServletRequest request) {
-    CasdoorAuthService casdoorAuthService = new CasdoorAuthService(casdoorSdkConfig.getCasdoorConfig());
     String token = "";
     CasdoorUser user = null;
     try {
         token = casdoorAuthService.getOAuthToken(code, state);
         user = casdoorAuthService.parseJwtToken(token);
-    } catch (OAuthSystemException | OAuthProblemException | ParseException | InvocationTargetException | IllegalAccessException e) {
+    } catch (CasdoorAuthException e) {
         e.printStackTrace();
     }
     HttpSession session = request.getSession();
@@ -150,10 +121,33 @@ public String login(String code, String state, HttpServletRequest request) {
 }
 ```
 
-## Step6. UserService
+Examples of APIs are shown below.
 
-`CasdoorUserService` support basic user operations, like:
+- CasdoorAuthService
+    - `String token = casdoorAuthService.getOAuthToken(code, "app-built-in");`
+    - `CasdoorUser casdoorUser = casdoorAuthService.parseJwtToken(token);`
+- CasdoorUserService
+    - `CasdoorUser casdoorUser = casdoorUserService.getUser("admin");`
+    - `CasdoorUser casdoorUser = casdoorUserService.getUserByEmail("admin@example.com");`
+    - `CasdoorUser[] casdoorUsers = casdoorUserService.getUsers();`
+    - `CasdoorUser[] casdoorUsers = casdoorUserService.getSortedUsers("created_time", 5);`
+    - `int count = casdoorUserService.getUserCount("0");`
+    - `CasdoorResponse response = casdoorUserService.addUser(user);`
+    - `CasdoorResponse response = casdoorUserService.updateUser(user);`
+    - `CasdoorResponse response = casdoorUserService.deleteUser(user);`
+- CasdoorEmailService
+    - `CasdoorResponse response = casdoorEmailService.sendEmail(title, content, sender, receiver);`
+- CasdoorSmsService
+    - `CasdoorResponse response = casdoorSmsService.sendSms(randomCode(), receiver);`
+- CasdoorResourceService
+    - `CasdoorResponse response = casdoorResourceService.uploadResource(user, tag, parent, fullFilePath, file);`
+    - `CasdoorResponse response = casdoorResourceService.deleteResource(file.getName());`
 
-- `GetUser(name string)`, get one user by user name.
-- `GetUsers()`, get all users.
-- `UpdateUser(auth.User)/AddUser(auth.User)/DeleteUser(auth.User)`, write user to database.
+## What's more
+
+You can explore the following projects/docs to learn more about the integration of Java with Casdoor.
+
+- [casdoor-java-sdk](https://github.com/casdoor/casdoor-java-sdk)
+- [casdoor-spring-boot-starter](https://github.com/casdoor/casdoor-spring-boot-starter)
+- [casdoor-spring-boot-security-example](https://casdoor.org/docs/integration/spring-security)
+- [casdoor-spring-boot-shiro-example](https://github.com/casdoor/casdoor-spring-boot-shiro-example)
