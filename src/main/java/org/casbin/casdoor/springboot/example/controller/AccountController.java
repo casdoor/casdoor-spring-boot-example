@@ -34,11 +34,16 @@ public class AccountController {
 
     @RequestMapping("toLogin")
     public String toLogin() {
-        return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/login");
+        return "toLogin";
     }
 
     @RequestMapping("login")
-    public String login(String code, String state, HttpServletRequest request) {
+    public String login() {
+        return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/callback");
+    }
+
+    @RequestMapping("callback")
+    public String callback(String code, String state, HttpServletRequest request) {
         String token = "";
         CasdoorUser user = null;
         try {

@@ -24,8 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class IndexController {
 
     @RequestMapping("/")
-    @ResponseBody
     public String index() {
-        return "You can see this message after login.";
+        return "index";
     }
 }

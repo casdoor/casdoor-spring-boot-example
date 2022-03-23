@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<div>
+    <h1>title</h1>
+    <h1>Hello <span th:text="${session.casdoorUser.name}"></span></h1>
+    <button th:attr="onclick=|getAccount('${session.casdoorUser.name}')|" type="button">Get Account</button>
+    <div id="res"></div>
+</div>
+<script>
+    function getAccount(name) {
+        $.ajax({
+            url: '/getUser?name=' + name,
+            type: 'get',
+            dataType: 'json',
+            success: function (data) {
+                $("#res").text(JSON.stringify(data))
+            },
+            error: function () {
+                alert('Timeout!');
+            }
+        })
+    }
+</script>
+</body>
+</html>
