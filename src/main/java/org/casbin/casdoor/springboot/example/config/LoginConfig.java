@@ -32,6 +32,7 @@ public class LoginConfig implements WebMvcConfigurer {
         registration.excludePathPatterns(
                 "/toLogin",
                 "/login",
+                "/callback",
                 "/**/*.html",
                 "/**/*.js",
                 "/**/*.css"

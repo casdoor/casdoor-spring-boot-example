@@ -15,7 +15,6 @@ package org.casbin.casdoor.springboot.example.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author Yixiang Zhao (@seriouszyx)
@@ -24,8 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class IndexController {
 
     @RequestMapping("/")
-    @ResponseBody
     public String index() {
-        return "You can see this message after login.";
+        return "index";
     }
 }

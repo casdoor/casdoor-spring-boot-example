@@ -89,12 +89,12 @@ private CasdoorAuthService casdoorAuthService;
 
 When you need the authentication who access your app, you can send the target url and redirect to the login page provided by Casdoor.
 
-Please be sure that you have added the callback url (e.g. http://localhost:8080/login) in application configuration in advance.
+Please be sure that you have added the callback url (e.g. http://localhost:8080/callback) in application configuration in advance.
 
 ```java
-@RequestMapping("toLogin")
-public String toLogin() {
-    return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/login");
+@RequestMapping("login")
+public String login() {
+    return "redirect:" + casdoorAuthService.getSigninUrl("http://localhost:8080/callback");
 }
 ```
 
@@ -105,8 +105,8 @@ You can get the code and call `getOAuthToken` method, then parse out jwt token.
 `CasdoorUser` contains the basic information about the user provided by Casdoor, you can use it as a keyword to set the session in your application.
 
 ```java
-@RequestMapping("login")
-public String login(String code, String state, HttpServletRequest request) {
+@RequestMapping("callback")
+public String callback(String code, String state, HttpSession session) {
     String token = "";
     CasdoorUser user = null;
     try {
@@ -115,7 +115,6 @@ public String login(String code, String state, HttpServletRequest request) {
     } catch (CasdoorAuthException e) {
         e.printStackTrace();
     }
-    HttpSession session = request.getSession();
     session.setAttribute("casdoorUser", user);
     return "redirect:/";
 }
