@@ -9,6 +9,7 @@
 <div>
     <h1>title</h1>
     <h1>Hello <span th:text="${session.casdoorUser.name}"></span></h1>
+    <button th:attr="onclick=|window.location.href='/logout'|">Sign Out</button><br />
     <button th:attr="onclick=|getAccount('${session.casdoorUser.name}')|" type="button">Get Account</button>
     <div id="res"></div>
 </div>

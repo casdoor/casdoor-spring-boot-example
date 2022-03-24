@@ -20,7 +20,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -43,7 +42,7 @@ public class AccountController {
     }
 
     @RequestMapping("callback")
-    public String callback(String code, String state, HttpServletRequest request) {
+    public String callback(String code, String state, HttpSession session) {
         String token = "";
         CasdoorUser user = null;
         try {
@@ -52,8 +51,13 @@ public class AccountController {
         } catch (CasdoorAuthException e) {
             e.printStackTrace();
         }
-        HttpSession session = request.getSession();
         session.setAttribute("casdoorUser", user);
         return "redirect:/";
+    }
+
+    @RequestMapping("logout")
+    public String logout(HttpSession session) {
+        session.setAttribute("casdoorUser", null);
+        return "toLogin";
     }
 }
