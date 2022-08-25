@@ -58,7 +58,7 @@ For properties:
 casdoor.endpoint = http://localhost:8000
 casdoor.clientId = <client-id>
 casdoor.clientSecret = <client-secret>
-casdoor.certificate = <jwt-public-key>
+casdoor.certificate = <certificate>
 casdoor.organizationName = built-in
 casdoor.applicationName = app-built-in
 ```
@@ -70,7 +70,7 @@ casdoor:
   endpoint: http://localhost:8000
   client-id: <client-id>
   client-secret: <client-secret>
-  certificate: <jwt-public-key>
+  certificate: <certificate>
   organization-name: built-in
   application-name: app-built-in
 ```
